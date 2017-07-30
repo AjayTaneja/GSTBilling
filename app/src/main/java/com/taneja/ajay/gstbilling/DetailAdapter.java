@@ -1,9 +1,13 @@
 package com.taneja.ajay.gstbilling;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -20,13 +24,12 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.DetailHold
     private Cursor mCursor;
     private Context mContext;
 
-    float totalTaxableValue = 0;
-    float totalSingleGst = 0;
-    float totalAmount = 0;
+    float totalTaxableValue = 0f;
+    float totalSingleGst = 0f;
+    float totalAmount = 0f;
 
 
-    public DetailAdapter(Cursor mCursor, Context mContext) {
-        this.mCursor = mCursor;
+    public DetailAdapter(Context mContext) {
         this.mContext = mContext;
     }
 
@@ -61,6 +64,11 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.DetailHold
             holder.cgst.setText(String.format("%.2f", singleGstValue));
             holder.sgst.setText(String.format("%.2f", singleGstValue));
 
+            holder.itemView.setTag(R.id.bill_edit_id, idValue);
+            holder.itemView.setTag(R.id.bill_edit_item_description, itemDescriptionValue);
+            holder.itemView.setTag(R.id.bill_edit_final_price, finalPriceValue);
+            holder.itemView.setTag(R.id.bill_edit_quantity, quantityValue);
+
             totalTaxableValue += taxableValueValue;
             totalSingleGst += singleGstValue;
             totalAmount += (finalPriceValue*quantityValue);
@@ -81,7 +89,17 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.DetailHold
         }
     }
 
-    public class DetailHolder extends RecyclerView.ViewHolder {
+    public void swapCursor(Cursor newCursor){
+        mCursor = newCursor;
+
+        totalTaxableValue = 0f;
+        totalSingleGst = 0f;
+        totalAmount = 0f;
+
+        notifyDataSetChanged();
+    }
+
+    public class DetailHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
 
         TextView itemDescription;
         TextView sno, finalPrice, qty, rate, taxableValue, taxSlab, cgst, sgst;
@@ -98,6 +116,27 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.DetailHold
             taxSlab = (TextView) itemView.findViewById(R.id.detail_tax_slab);
             cgst = (TextView) itemView.findViewById(R.id.detail_cgst);
             sgst = (TextView) itemView.findViewById(R.id.detail_sgst);
+
+            itemView.setOnCreateContextMenuListener(this);
         }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            MenuItem editItem = menu.add(Menu.NONE, 1, 1, R.string.action_edit_bill_item_label);
+            editItem.setOnMenuItemClickListener(onEditItemMenu);
+        }
+
+        private MenuItem.OnMenuItemClickListener onEditItemMenu = new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = (int) itemView.getTag(R.id.bill_edit_id);
+                String itemDescription = (String) itemView.getTag(R.id.bill_edit_item_description);
+                float finalPrice = (float) itemView.getTag(R.id.bill_edit_final_price);
+                int quantity = (int) itemView.getTag(R.id.bill_edit_quantity);
+                DetailActivity.editItem(mContext, id, itemDescription, finalPrice, quantity);
+
+                return true;
+            }
+        };
     }
 }

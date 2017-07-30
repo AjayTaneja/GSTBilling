@@ -50,7 +50,44 @@ public class NewBillActivity extends AppCompatActivity {
         finishBtn = (Button) findViewById(R.id.finish_btn);
         finishBtn.setEnabled(false);
 
-        cvList = new ArrayList<>();
+        if(getIntent().hasExtra(DetailActivity.EDITING_ITEM)){
+            findViewById(R.id.add_to_bill_btn).setVisibility(View.GONE);
+            finishBtn.setVisibility(View.GONE);
+
+            final Intent editIntent = getIntent();
+            final int idValue = editIntent.getIntExtra(GSTBillingCustomerEntry._ID, 0);
+            String itemDescriptionValue = editIntent.getStringExtra(GSTBillingCustomerEntry.SECONDARY_COLUMN_ITEM_DESCRIPTION);
+            float finalPriceValue = editIntent.getFloatExtra(GSTBillingCustomerEntry.SECONDARY_COLUMN_FINAL_PRICE, 0f);
+            int quantityValue = editIntent.getIntExtra(GSTBillingCustomerEntry.SECONDARY_COLUMN_QUANTITY, 0);
+
+            itemDescription.setText(itemDescriptionValue);
+            finalPriceEt.setText(String.valueOf((int) finalPriceValue));
+            quantityEt.setText(String.valueOf(quantityValue));
+
+            Button doneEditingBtn = (Button) findViewById(R.id.done_edit_item_btn);
+            doneEditingBtn.setVisibility(View.VISIBLE);
+            doneEditingBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    ContentValues cv = new ContentValues();
+                    cv.put(GSTBillingCustomerEntry.SECONDARY_COLUMN_ITEM_DESCRIPTION, itemDescription.getText().toString());
+                    cv.put(GSTBillingCustomerEntry.SECONDARY_COLUMN_FINAL_PRICE, Integer.parseInt(finalPriceEt.getText().toString()));
+                    cv.put(GSTBillingCustomerEntry.SECONDARY_COLUMN_QUANTITY, Integer.parseInt(quantityEt.getText().toString()));
+                    cv.put(GSTBillingCustomerEntry.SECONDARY_COLUMN_TAX_SLAB, taxSlab);
+                    getContentResolver().update(
+                            GSTBillingEntry.CONTENT_URI.buildUpon().appendPath(editIntent.getStringExtra(DetailActivity.EDITING_ITEM)).appendPath(String.valueOf(idValue)).build(),
+                            cv,
+                            null,
+                            null
+                    );
+                    finish();
+
+                }
+            });
+        }else{
+            cvList = new ArrayList<>();
+        }
 
     }
 

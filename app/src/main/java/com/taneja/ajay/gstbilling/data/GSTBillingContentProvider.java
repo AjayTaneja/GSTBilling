@@ -21,6 +21,7 @@ public class GSTBillingContentProvider extends ContentProvider {
 
     public static final int BILLS = 100;
     public static final int BILL_WITH_ID = 101;
+    public static final int BILL_WITH_ID_WITH_ID = 102;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
@@ -28,6 +29,7 @@ public class GSTBillingContentProvider extends ContentProvider {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(GSTBillingContract.AUTHORITY, GSTBillingContract.PATH_BILLS, BILLS);
         uriMatcher.addURI(GSTBillingContract.AUTHORITY, GSTBillingContract.PATH_BILLS + "/#", BILL_WITH_ID);
+        uriMatcher.addURI(GSTBillingContract.AUTHORITY, GSTBillingContract.PATH_BILLS + "/#/#", BILL_WITH_ID_WITH_ID);
         return uriMatcher;
     }
 
@@ -188,6 +190,17 @@ public class GSTBillingContentProvider extends ContentProvider {
                 rowsUpdated = db.update(GSTBillingContract.GSTBillingEntry.PRIMARY_TABLE_NAME, values, selection, selectionArgs);
                 if(rowsUpdated > 0){
                     getContext().getContentResolver().notifyChange(GSTBillingContract.GSTBillingEntry.CONTENT_URI, null);
+                }
+                break;
+            case BILL_WITH_ID_WITH_ID:
+                rowsUpdated = db.update(
+                        GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_TABLE_NAME + uri.getPathSegments().get(1),
+                        values,
+                        GSTBillingContract.GSTBillingCustomerEntry._ID + "=" + uri.getLastPathSegment(),
+                        null
+                );
+                if(rowsUpdated > 0){
+                    getContext().getContentResolver().notifyChange(GSTBillingContract.BASE_CONTENT_URI.buildUpon().appendPath(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_TABLE_NAME + uri.getPathSegments().get(1)).build(), null);
                 }
                 break;
             default:

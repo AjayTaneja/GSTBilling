@@ -1,6 +1,7 @@
 package com.taneja.ajay.gstbilling;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,6 +11,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,18 +30,20 @@ import android.widget.Toast;
 import com.taneja.ajay.gstbilling.data.GSTBillingContract;
 import com.taneja.ajay.gstbilling.utils.NumberToWord;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private static final int DETAIL_LOADER_ID = 44;
 
     private static final int ACTION_MARK_AS_PAID_ID = 400;
     private static final int ACTION_DELETE_BILL_ID = 401;
     private static final int ACTION_ADD_MORE_ITEMS_ID = 402;
 
     static final String ADDING_MORE_ITEMS = "adding-more-items-to-bill";
+    static final String EDITING_ITEM = "editing-existing-item";
 
     private RecyclerView detailRecyclerView;
     private DetailAdapter adapter;
-    private Cursor detailCursor;
-    private String billId;
+    private static String billId;
     private String billStatus;
     private String phoneNumber;
     private String customerName;
@@ -85,12 +91,10 @@ public class DetailActivity extends AppCompatActivity {
             phoneNumber = getDetailIntent.getStringExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER);
         }
 
-        detailCursor = getContentResolver().query(GSTBillingContract.GSTBillingEntry.CONTENT_URI.buildUpon().appendPath(billId).build(), null, null, null, null);
-
         detailRecyclerView = (RecyclerView) findViewById(R.id.detail_recycler_view);
         detailRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         detailRecyclerView.setHasFixedSize(true);
-        adapter = new DetailAdapter(detailCursor, this);
+        adapter = new DetailAdapter(this);
         detailRecyclerView.setAdapter(adapter);
 
         totalTaxableValueTv = (TextView) findViewById(R.id.total_amount_before_tax_value);
@@ -102,6 +106,7 @@ public class DetailActivity extends AppCompatActivity {
 
         inr = getString(R.string.inr) + " ";
 
+        getSupportLoaderManager().initLoader(DETAIL_LOADER_ID, null, this);
     }
 
     public static void printTotalDetails(float totalTaxableValue, float totalSingleGst, float totalAmount){
@@ -245,4 +250,36 @@ public class DetailActivity extends AppCompatActivity {
         finish();
     }
 
+    public static void editItem(Context context, int id, String itemDescription, float finalPrice, int quantity){
+        Intent editIntent = new Intent(context, NewBillActivity.class);
+        editIntent.putExtra(EDITING_ITEM, billId);
+        editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry._ID, id);
+        editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_COLUMN_ITEM_DESCRIPTION, itemDescription);
+        editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_COLUMN_FINAL_PRICE, finalPrice);
+        editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_COLUMN_QUANTITY, quantity);
+        context.startActivity(editIntent);
+
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(
+                this,
+                GSTBillingContract.GSTBillingEntry.CONTENT_URI.buildUpon().appendPath(billId).build(),
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        adapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
+    }
 }

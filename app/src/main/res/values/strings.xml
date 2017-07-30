@@ -66,4 +66,6 @@
     <string name="item_tv">Item</string>
     <string name="item_hint">Item description</string>
     <string name="action_add_more_items_label">Add more items</string>
+    <string name="action_edit_bill_item_label">Edit</string>
+    <string name="done_edit_item_btn_label">Done</string>
 </resources>

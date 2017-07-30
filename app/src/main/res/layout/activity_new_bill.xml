@@ -70,6 +70,7 @@
 
             <Button
                 android:onClick="addToBill"
+                android:id="@+id/add_to_bill_btn"
                 android:layout_marginBottom="5dp"
                 android:text="@string/add_to_bill_btn_label"
                 android:background="@color/colorPrimary"
@@ -82,6 +83,16 @@
                 android:id="@+id/finish_btn"
                 android:layout_marginBottom="10dp"
                 android:text="@string/finish_btn_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/done_edit_item_btn"
+                android:layout_marginBottom="5dp"
+                android:text="@string/done_edit_item_btn_label"
+                android:background="@color/colorPrimary"
+                android:textColor="@android:color/white"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
