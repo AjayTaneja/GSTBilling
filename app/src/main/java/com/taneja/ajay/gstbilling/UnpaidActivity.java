@@ -79,8 +79,8 @@ public class UnpaidActivity extends AppCompatActivity implements LoaderManager.L
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if(id == R.id.action_show_paid_bills){
-            Intent intent = new Intent(this, PaidActivity.class);
-            startActivity(intent);
+//            Intent intent = new Intent(this, PaidActivity.class);
+//            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
