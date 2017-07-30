@@ -26,6 +26,8 @@ import java.util.List;
 
 public class NewBillActivity extends AppCompatActivity {
 
+    public static boolean addingMoreItems = false;
+
     private Spinner taxSlabSpinner;
     private EditText itemDescription;
     private EditText finalPriceEt;
@@ -121,37 +123,70 @@ public class NewBillActivity extends AppCompatActivity {
             return;
         }
 
-        // Inserting customer details in primary table
-        Intent intent = getIntent();
-        String customerName = intent.getStringExtra(NewBillCustomerActivity.ADD_CUSTOMER_NAME_KEY);
-        String phoneNumber = intent.getStringExtra(NewBillCustomerActivity.ADD_CUSTOMER_PHONE_KEY);
+        if(!getIntent().hasExtra(DetailActivity.ADDING_MORE_ITEMS)){
+            // Inserting customer details in primary table
+            Intent intent = getIntent();
+            String customerName = intent.getStringExtra(NewBillCustomerActivity.ADD_CUSTOMER_NAME_KEY);
+            String phoneNumber = intent.getStringExtra(NewBillCustomerActivity.ADD_CUSTOMER_PHONE_KEY);
 
-        String billDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-        String billStatus = GSTBillingContract.BILL_STATUS_UNPAID;
+            String billDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+            String billStatus = GSTBillingContract.BILL_STATUS_UNPAID;
 
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(GSTBillingEntry.PRIMARY_COLUMN_NAME, customerName);
-        contentValues.put(GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER, phoneNumber);
-        contentValues.put(GSTBillingEntry.PRIMARY_COLUMN_DATE, billDate);
-        contentValues.put(GSTBillingEntry.PRIMARY_COLUMN_STATUS, billStatus);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(GSTBillingEntry.PRIMARY_COLUMN_NAME, customerName);
+            contentValues.put(GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER, phoneNumber);
+            contentValues.put(GSTBillingEntry.PRIMARY_COLUMN_DATE, billDate);
+            contentValues.put(GSTBillingEntry.PRIMARY_COLUMN_STATUS, billStatus);
 
-        Uri idUri = getContentResolver().insert(GSTBillingEntry.CONTENT_URI, contentValues);
+            Uri idUri = getContentResolver().insert(GSTBillingEntry.CONTENT_URI, contentValues);
 
-        // Inserting item details in secondary table
-        String id = idUri.getLastPathSegment();
-        getContentResolver().bulkInsert(GSTBillingContract.GSTBillingEntry.CONTENT_URI.buildUpon().appendPath(id).build(),
-                cvList.toArray(new ContentValues[cvList.size()]));
+            // Inserting item details in secondary table
+            String id = idUri.getLastPathSegment();
+            getContentResolver().bulkInsert(GSTBillingContract.GSTBillingEntry.CONTENT_URI.buildUpon().appendPath(id).build(),
+                    cvList.toArray(new ContentValues[cvList.size()]));
 
-        // Opening detail activity
-        Intent detailIntent = new Intent(this, DetailActivity.class);
+            // Opening detail activity
+            Intent detailIntent = new Intent(this, DetailActivity.class);
 
-        detailIntent.putExtra(GSTBillingEntry._ID, id);
-        detailIntent.putExtra(GSTBillingEntry.PRIMARY_COLUMN_NAME, customerName);
-        detailIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER, phoneNumber);
+            detailIntent.putExtra(GSTBillingEntry._ID, id);
+            detailIntent.putExtra(GSTBillingEntry.PRIMARY_COLUMN_NAME, customerName);
+            detailIntent.putExtra(GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER, phoneNumber);
+            detailIntent.putExtra(GSTBillingEntry.PRIMARY_COLUMN_STATUS, GSTBillingContract.BILL_STATUS_UNPAID);
 
-        startActivity(detailIntent);
+            startActivity(detailIntent);
 
-        finish();
+            finish();
+        }else {
+            addingMoreItems = true;
+
+            String id = getIntent().getStringExtra(GSTBillingEntry._ID);
+            getContentResolver().bulkInsert(GSTBillingContract.GSTBillingEntry.CONTENT_URI.buildUpon().appendPath(id).build(),
+                    cvList.toArray(new ContentValues[cvList.size()]));
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_STATUS, GSTBillingContract.BILL_STATUS_UNPAID);
+            getContentResolver().update(
+                    GSTBillingContract.GSTBillingEntry.CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build(),
+                    contentValues,
+                    GSTBillingContract.GSTBillingEntry._ID + "=" + id,
+                    null
+            );
+
+            Intent intent = getIntent();
+            String customerName = intent.getStringExtra(GSTBillingEntry.PRIMARY_COLUMN_NAME);
+            String phoneNumber = intent.getStringExtra(GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER);
+
+            Intent detailIntent = new Intent(this, DetailActivity.class);
+
+            detailIntent.putExtra(GSTBillingContract.GSTBillingEntry._ID, id);
+            detailIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_NAME, customerName);
+            detailIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER, phoneNumber);
+            detailIntent.putExtra(GSTBillingEntry.PRIMARY_COLUMN_STATUS, GSTBillingContract.BILL_STATUS_UNPAID);
+
+            startActivity(detailIntent);
+
+            finish();
+        }
     }
 
     @Override

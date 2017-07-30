@@ -97,8 +97,9 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.BillHolder> {
         }
     }
 
-    void swapCursor(Cursor newCursor){
+    void swapCursor(Cursor newCursor, int newDividerColor){
         mCursor = newCursor;
+        dividerColor = newDividerColor;
         notifyDataSetChanged();
     }
 

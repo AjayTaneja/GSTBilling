@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
+import com.taneja.ajay.gstbilling.NewBillActivity;
+
 /**
  * Created by Ajay on 7/23/2017.
  */
@@ -115,7 +117,9 @@ public class GSTBillingContentProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         switch (match){
             case BILL_WITH_ID:
-                GSTBillingDbHelper.createBillTable(db, uri.getLastPathSegment());
+                if(NewBillActivity.addingMoreItems == false){
+                    GSTBillingDbHelper.createBillTable(db, uri.getLastPathSegment());
+                }
                 db.beginTransaction();
                 int rowsInserted = 0;
                 try{

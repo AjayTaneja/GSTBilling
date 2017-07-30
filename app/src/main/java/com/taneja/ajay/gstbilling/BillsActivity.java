@@ -20,38 +20,44 @@ import android.view.MenuItem;
 
 import com.taneja.ajay.gstbilling.data.GSTBillingContract;
 
-public class UnpaidActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, BillAdapter.BillItemClickListener {
+public class BillsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, BillAdapter.BillItemClickListener {
 
     private RecyclerView unpaidRecyclerView;
     private BillAdapter adapter;
+    private String billListStatus;
+    private int billDividerColor;
+    private String billSortOrder;
 
     private static final int BILL_LOADER_ID = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_unpaid);
+        setContentView(R.layout.activity_bills);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setTitle(R.string.unpaid_bills_activity_title);
+        getSupportActionBar().setTitle(R.string.unpaid_bills_title);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_unpaid);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(UnpaidActivity.this, NewBillCustomerActivity.class));
+                startActivity(new Intent(BillsActivity.this, NewBillCustomerActivity.class));
             }
         });
 
         checkPasswordSetup();
 
+        billDividerColor = Color.RED;
+        billSortOrder = " ASC";
         unpaidRecyclerView = (RecyclerView) findViewById(R.id.unpaid_recycler_view);
         unpaidRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         unpaidRecyclerView.setHasFixedSize(true);
-        adapter = new BillAdapter(this, this, Color.RED);
+        adapter = new BillAdapter(this, this, billDividerColor);
         unpaidRecyclerView.setAdapter(adapter);
 
+        billListStatus = GSTBillingContract.BILL_STATUS_UNPAID;
         getSupportLoaderManager().initLoader(BILL_LOADER_ID, null, this);
 
     }
@@ -68,7 +74,7 @@ public class UnpaidActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_unpaid, menu);
+        getMenuInflater().inflate(R.menu.menu_bills_list, menu);
         return true;
     }
 
@@ -78,9 +84,26 @@ public class UnpaidActivity extends AppCompatActivity implements LoaderManager.L
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if(id == R.id.action_show_paid_bills){
-//            Intent intent = new Intent(this, PaidActivity.class);
-//            startActivity(intent);
+        if(id == R.id.action_swap_bills_list){
+
+            switch (billListStatus){
+                case GSTBillingContract.BILL_STATUS_UNPAID:
+                    billListStatus = GSTBillingContract.BILL_STATUS_PAID;
+                    item.setTitle(getString(R.string.action_show_unpaid_bills));
+                    getSupportActionBar().setTitle(getString(R.string.paid_bills_title));
+                    billDividerColor = Color.GREEN;
+                    billSortOrder = " DESC";
+                    break;
+                case GSTBillingContract.BILL_STATUS_PAID:
+                    billListStatus = GSTBillingContract.BILL_STATUS_UNPAID;
+                    item.setTitle(getString(R.string.action_show_paid_bills));
+                    getSupportActionBar().setTitle(getString(R.string.unpaid_bills_title));
+                    billDividerColor = Color.RED;
+                    billSortOrder = " ASC";
+                    break;
+            }
+            getSupportLoaderManager().restartLoader(BILL_LOADER_ID, null, this);
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -94,9 +117,9 @@ public class UnpaidActivity extends AppCompatActivity implements LoaderManager.L
                         this,
                         GSTBillingContract.GSTBillingEntry.CONTENT_URI,
                         null,
-                        GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_STATUS + "='" + GSTBillingContract.BILL_STATUS_UNPAID + "'",
+                        GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_STATUS + "='" + billListStatus + "'",
                         null,
-                        GSTBillingContract.GSTBillingEntry._ID
+                        GSTBillingContract.GSTBillingEntry._ID + billSortOrder
                 );
             default:
                 throw new RuntimeException("Loader not implemented: " + id);
@@ -105,12 +128,12 @@ public class UnpaidActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
+        adapter.swapCursor(data, billDividerColor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.swapCursor(null);
+        adapter.swapCursor(null, Color.RED);
     }
 
     @Override
@@ -118,6 +141,7 @@ public class UnpaidActivity extends AppCompatActivity implements LoaderManager.L
         Intent detailIntent = new Intent(this, DetailActivity.class);
 
         detailIntent.putExtra(GSTBillingContract.GSTBillingEntry._ID, clickedBillId);
+        detailIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_STATUS, billListStatus);
         detailIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_NAME, customerName);
         detailIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER, phoneNumber);
 

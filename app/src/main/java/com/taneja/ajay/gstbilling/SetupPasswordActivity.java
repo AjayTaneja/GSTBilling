@@ -39,7 +39,7 @@ public class SetupPasswordActivity extends AppCompatActivity {
                     editor.apply();
                     Toast.makeText(getApplicationContext(), getString(R.string.setup_password_set), Toast.LENGTH_SHORT).show();
 
-                    startActivity(new Intent(SetupPasswordActivity.this, UnpaidActivity.class));
+                    startActivity(new Intent(SetupPasswordActivity.this, BillsActivity.class));
 
                     finish();
                 }else {

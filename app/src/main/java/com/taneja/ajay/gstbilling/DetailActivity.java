@@ -30,6 +30,9 @@ public class DetailActivity extends AppCompatActivity {
 
     private static final int ACTION_MARK_AS_PAID_ID = 400;
     private static final int ACTION_DELETE_BILL_ID = 401;
+    private static final int ACTION_ADD_MORE_ITEMS_ID = 402;
+
+    static final String ADDING_MORE_ITEMS = "adding-more-items-to-bill";
 
     private RecyclerView detailRecyclerView;
     private DetailAdapter adapter;
@@ -37,6 +40,7 @@ public class DetailActivity extends AppCompatActivity {
     private String billId;
     private String billStatus;
     private String phoneNumber;
+    private String customerName;
 
     private static TextView totalTaxableValueTv;
     private static TextView totalCgstTv;
@@ -61,16 +65,19 @@ public class DetailActivity extends AppCompatActivity {
         getDetailIntent = getIntent();
         billId = getDetailIntent.getStringExtra(GSTBillingContract.GSTBillingEntry._ID);
 
+
         if(getDetailIntent.hasExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_STATUS)){
             billStatus = getDetailIntent.getStringExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_STATUS);
+        }
+
+        if(billStatus.equals(GSTBillingContract.BILL_STATUS_PAID)){
             detailActionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00C853")));
         }else {
-            billStatus = GSTBillingContract.BILL_STATUS_UNPAID;
             detailActionBar.setBackgroundDrawable(new ColorDrawable(Color.RED));
         }
 
         if(getDetailIntent.hasExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_NAME)){
-            String customerName = getDetailIntent.getStringExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_NAME);
+            customerName = getDetailIntent.getStringExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_NAME);
             detailActionBar.setTitle(customerName);
         }
 
@@ -132,7 +139,7 @@ public class DetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_mark_as_paid){
-            if(billStatus == GSTBillingContract.BILL_STATUS_UNPAID){
+            if(billStatus.equals(GSTBillingContract.BILL_STATUS_UNPAID)){
 
                 displayPasswordDialog(ACTION_MARK_AS_PAID_ID);
 
@@ -151,6 +158,12 @@ public class DetailActivity extends AppCompatActivity {
             if(billId != null && billId.length() != 0){
 
                 displayPasswordDialog(ACTION_DELETE_BILL_ID);
+
+            }
+        }else if(id == R.id.action_add_more_items){
+            if(billId != null && billId.length() != 0){
+
+                displayPasswordDialog(ACTION_ADD_MORE_ITEMS_ID);
 
             }
         }
@@ -173,6 +186,8 @@ public class DetailActivity extends AppCompatActivity {
         String title = getString(R.string.action_mark_as_paid_label);
         if(actionId == ACTION_DELETE_BILL_ID){
             title = getString(R.string.action_delete_bill_label);
+        }else if(actionId == ACTION_ADD_MORE_ITEMS_ID){
+            title = getString(R.string.action_add_more_items_label);
         }
 
         final EditText passwordInput = new EditText(this);
@@ -198,6 +213,9 @@ public class DetailActivity extends AppCompatActivity {
                                 case ACTION_DELETE_BILL_ID:
                                     deleteBill();
                                     break;
+                                case ACTION_ADD_MORE_ITEMS_ID:
+                                    addMoreItems();
+                                    break;
                                 default:
                                     Toast.makeText(DetailActivity.this, getString(R.string.no_operation_specified_error), Toast.LENGTH_SHORT).show();
                             }
@@ -216,4 +234,15 @@ public class DetailActivity extends AppCompatActivity {
                 .show();
 
     }
+
+    private void addMoreItems() {
+        Intent addIntent = new Intent(this, NewBillActivity.class);
+        addIntent.putExtra(ADDING_MORE_ITEMS, true);
+        addIntent.putExtra(GSTBillingContract.GSTBillingEntry._ID, billId);
+        addIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_NAME, customerName);
+        addIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER, phoneNumber);
+        startActivity(addIntent);
+        finish();
+    }
+
 }

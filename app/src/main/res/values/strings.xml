@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">GST Billing</string>
-    <string name="unpaid_bills_activity_title">Unpaid Bills</string>
-    <string name="paid_bills_activity_title">Paid Bills</string>
+    <string name="unpaid_bills_title">Unpaid Bills</string>
+    <string name="paid_bills_title">Paid Bills</string>
     <string name="setup_password_activity_title">Setup Password</string>
     <string name="new_bill_customer_activity_title">Enter customer details</string>
     <string name="new_bill_activity_title">Enter items</string>
@@ -65,4 +65,5 @@
     <string name="no_operation_specified_error">No operation specified!</string>
     <string name="item_tv">Item</string>
     <string name="item_hint">Item description</string>
+    <string name="action_add_more_items_label">Add more items</string>
 </resources>

@@ -8,8 +8,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".UnpaidActivity"
-            android:launchMode="singleTask"
+            android:name=".BillsActivity"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,11 +20,6 @@
         <activity
             android:name=".SetupPasswordActivity"
             android:label="@string/setup_password_activity_title"/>
-        <activity
-            android:name=".PaidActivity"
-            android:label="@string/paid_bills_activity_title"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar" />
 
         <provider
             android:authorities="com.taneja.ajay.gstbilling"
