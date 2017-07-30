@@ -201,6 +201,7 @@ public class GSTBillingContentProvider extends ContentProvider {
                 );
                 if(rowsUpdated > 0){
                     getContext().getContentResolver().notifyChange(GSTBillingContract.BASE_CONTENT_URI.buildUpon().appendPath(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_TABLE_NAME + uri.getPathSegments().get(1)).build(), null);
+                    getContext().getContentResolver().notifyChange(GSTBillingContract.GSTBillingEntry.CONTENT_URI, null);
                 }
                 break;
             default:

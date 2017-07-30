@@ -37,6 +37,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private static final int ACTION_MARK_AS_PAID_ID = 400;
     private static final int ACTION_DELETE_BILL_ID = 401;
     private static final int ACTION_ADD_MORE_ITEMS_ID = 402;
+    private static final int ACTION_EDIT_ITEM_ID = 403;
 
     static final String ADDING_MORE_ITEMS = "adding-more-items-to-bill";
     static final String EDITING_ITEM = "editing-existing-item";
@@ -44,7 +45,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private RecyclerView detailRecyclerView;
     private DetailAdapter adapter;
     private static String billId;
-    private String billStatus;
+    private static String billStatus;
     private String phoneNumber;
     private String customerName;
 
@@ -57,7 +58,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
     private static String inr;
 
-    private ActionBar detailActionBar;
+    private static ActionBar detailActionBar;
 
     private Intent getDetailIntent;
 
@@ -250,14 +251,44 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         finish();
     }
 
-    public static void editItem(Context context, int id, String itemDescription, float finalPrice, int quantity){
-        Intent editIntent = new Intent(context, NewBillActivity.class);
-        editIntent.putExtra(EDITING_ITEM, billId);
-        editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry._ID, id);
-        editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_COLUMN_ITEM_DESCRIPTION, itemDescription);
-        editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_COLUMN_FINAL_PRICE, finalPrice);
-        editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_COLUMN_QUANTITY, quantity);
-        context.startActivity(editIntent);
+    public static void editItem(final Context context, final int id, final String itemDescription, final float finalPrice, final int quantity){
+
+        final EditText passwordInput = new EditText(context);
+        passwordInput.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        passwordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        passwordInput.setHint(R.string.enter_password_dialog_hint);
+        passwordInput.setHintTextColor(Color.LTGRAY);
+        new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.action_edit_bill_item_label))
+                .setView(passwordInput)
+                .setPositiveButton(context.getString(R.string.enter_password_dialog_ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String password = passwordInput.getText().toString();
+                        String savedPassword = PreferenceManager.getDefaultSharedPreferences(context)
+                                .getString(SetupPasswordActivity.SETUP_PASSWORD_KEY, null);
+                        if(savedPassword != null && savedPassword.equals(password)){
+
+                            Intent editIntent = new Intent(context, NewBillActivity.class);
+                            editIntent.putExtra(EDITING_ITEM, billId);
+                            editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry._ID, id);
+                            editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_COLUMN_ITEM_DESCRIPTION, itemDescription);
+                            editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_COLUMN_FINAL_PRICE, finalPrice);
+                            editIntent.putExtra(GSTBillingContract.GSTBillingCustomerEntry.SECONDARY_COLUMN_QUANTITY, quantity);
+                            context.startActivity(editIntent);
+
+                        }else {
+                            Toast.makeText(context, context.getString(R.string.invalid_password_error), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                })
+                .setNegativeButton(context.getString(R.string.enter_password_dialog_cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
 
     }
 
@@ -281,5 +312,10 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         adapter.swapCursor(null);
+    }
+
+    public static void changeBillStatus(){
+        billStatus = GSTBillingContract.BILL_STATUS_UNPAID;
+        detailActionBar.setBackgroundDrawable(new ColorDrawable(Color.RED));
     }
 }

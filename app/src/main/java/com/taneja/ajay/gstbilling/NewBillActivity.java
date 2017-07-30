@@ -69,6 +69,17 @@ public class NewBillActivity extends AppCompatActivity {
             doneEditingBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(itemDescription.getText().toString().length() == 0){
+                        itemDescription.setText("NA");
+                    }
+                    if(finalPriceEt.getText().toString().length() == 0){
+                        finalPriceEt.requestFocus();
+                        Toast.makeText(NewBillActivity.this, getString(R.string.enter_final_price_error), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if(quantityEt.getText().toString().length() == 0){
+                        quantityEt.setText("1");
+                    }
 
                     ContentValues cv = new ContentValues();
                     cv.put(GSTBillingCustomerEntry.SECONDARY_COLUMN_ITEM_DESCRIPTION, itemDescription.getText().toString());
@@ -81,6 +92,16 @@ public class NewBillActivity extends AppCompatActivity {
                             null,
                             null
                     );
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_STATUS, GSTBillingContract.BILL_STATUS_UNPAID);
+                    getContentResolver().update(
+                            GSTBillingContract.GSTBillingEntry.CONTENT_URI.buildUpon().appendPath(editIntent.getStringExtra(DetailActivity.EDITING_ITEM)).build(),
+                            contentValues,
+                            GSTBillingContract.GSTBillingEntry._ID + "=" + editIntent.getStringExtra(DetailActivity.EDITING_ITEM),
+                            null
+                    );
+                    DetailActivity.changeBillStatus();
+
                     finish();
 
                 }
