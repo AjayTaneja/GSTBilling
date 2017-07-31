@@ -60,7 +60,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
     private static ActionBar detailActionBar;
 
-    private Intent getDetailIntent;
+    private static Intent getDetailIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -317,5 +317,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     public static void changeBillStatus(){
         billStatus = GSTBillingContract.BILL_STATUS_UNPAID;
         detailActionBar.setBackgroundDrawable(new ColorDrawable(Color.RED));
+        getDetailIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_STATUS, billStatus);
     }
 }
