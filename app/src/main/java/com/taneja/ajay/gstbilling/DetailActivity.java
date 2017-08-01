@@ -37,7 +37,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private static final int ACTION_MARK_AS_PAID_ID = 400;
     private static final int ACTION_DELETE_BILL_ID = 401;
     private static final int ACTION_ADD_MORE_ITEMS_ID = 402;
-    private static final int ACTION_EDIT_ITEM_ID = 403;
 
     static final String ADDING_MORE_ITEMS = "adding-more-items-to-bill";
     static final String EDITING_ITEM = "editing-existing-item";
@@ -248,7 +247,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         addIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_NAME, customerName);
         addIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER, phoneNumber);
         startActivity(addIntent);
-        finish();
     }
 
     public static void editItem(final Context context, final int id, final String itemDescription, final float finalPrice, final int quantity){

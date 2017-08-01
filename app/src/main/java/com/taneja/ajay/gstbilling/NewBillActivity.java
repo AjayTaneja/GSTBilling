@@ -51,6 +51,8 @@ public class NewBillActivity extends AppCompatActivity {
         finishBtn.setEnabled(false);
 
         if(getIntent().hasExtra(DetailActivity.EDITING_ITEM)){
+            getSupportActionBar().setTitle(R.string.action_edit_bill_item_label);
+
             findViewById(R.id.add_to_bill_btn).setVisibility(View.GONE);
             finishBtn.setVisibility(View.GONE);
 
@@ -229,19 +231,7 @@ public class NewBillActivity extends AppCompatActivity {
                     GSTBillingContract.GSTBillingEntry._ID + "=" + id,
                     null
             );
-
-            Intent intent = getIntent();
-            String customerName = intent.getStringExtra(GSTBillingEntry.PRIMARY_COLUMN_NAME);
-            String phoneNumber = intent.getStringExtra(GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER);
-
-            Intent detailIntent = new Intent(this, DetailActivity.class);
-
-            detailIntent.putExtra(GSTBillingContract.GSTBillingEntry._ID, id);
-            detailIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_NAME, customerName);
-            detailIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER, phoneNumber);
-            detailIntent.putExtra(GSTBillingEntry.PRIMARY_COLUMN_STATUS, GSTBillingContract.BILL_STATUS_UNPAID);
-
-            startActivity(detailIntent);
+            DetailActivity.changeBillStatus();
 
             finish();
         }
