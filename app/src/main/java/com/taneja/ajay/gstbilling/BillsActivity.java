@@ -37,7 +37,23 @@ public class BillsActivity extends AppCompatActivity implements LoaderManager.Lo
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setTitle(R.string.unpaid_bills_title);
+        if(savedInstanceState != null){
+            billListStatus = savedInstanceState.getString(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_STATUS);
+        }else {
+            billListStatus = GSTBillingContract.BILL_STATUS_UNPAID;
+        }
+        switch (billListStatus){
+            case GSTBillingContract.BILL_STATUS_PAID:
+                getSupportActionBar().setTitle(R.string.paid_bills_title);
+                billDividerColor = Color.GREEN;
+                billSortOrder = " DESC";
+                break;
+            case GSTBillingContract.BILL_STATUS_UNPAID:
+                getSupportActionBar().setTitle(R.string.unpaid_bills_title);
+                billDividerColor = Color.RED;
+                billSortOrder = " ASC";
+                break;
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_unpaid);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -49,15 +65,12 @@ public class BillsActivity extends AppCompatActivity implements LoaderManager.Lo
 
         checkPasswordSetup();
 
-        billDividerColor = Color.RED;
-        billSortOrder = " ASC";
         unpaidRecyclerView = (RecyclerView) findViewById(R.id.unpaid_recycler_view);
         unpaidRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         unpaidRecyclerView.setHasFixedSize(true);
         adapter = new BillAdapter(this, this, billDividerColor);
         unpaidRecyclerView.setAdapter(adapter);
 
-        billListStatus = GSTBillingContract.BILL_STATUS_UNPAID;
         getSupportLoaderManager().initLoader(BILL_LOADER_ID, null, this);
 
     }
@@ -75,6 +88,9 @@ public class BillsActivity extends AppCompatActivity implements LoaderManager.Lo
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_bills_list, menu);
+        if(billListStatus.equals(GSTBillingContract.BILL_STATUS_PAID)){
+            menu.findItem(R.id.action_swap_bills_list).setTitle(R.string.action_show_unpaid_bills);
+        }
         return true;
     }
 
@@ -146,5 +162,12 @@ public class BillsActivity extends AppCompatActivity implements LoaderManager.Lo
         detailIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_PHONE_NUMBER, phoneNumber);
 
         startActivity(detailIntent);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_STATUS, billListStatus);
+
+        super.onSaveInstanceState(outState);
     }
 }

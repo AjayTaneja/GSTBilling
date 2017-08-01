@@ -53,6 +53,8 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.BillHolder> {
             holder.customerNameTv.setText(customerName);
             if(phoneNumber.length() == 10){
                 holder.phoneNumberTv.setText(phoneNumber);
+            }else {
+                holder.phoneNumberTv.setText("");
             }
             holder.totalAmountTv.setText(mContext.getString(R.string.inr) + String.valueOf(totalAmount));
             holder.dateTv.setText(date);
