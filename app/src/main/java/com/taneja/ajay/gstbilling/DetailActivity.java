@@ -57,6 +57,9 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
     private static String inr;
 
+    private int itemCount;
+    public static final String ITEM_COUNT_KEY = "items-count-in-bill";
+
     private static ActionBar detailActionBar;
 
     private static Intent getDetailIntent;
@@ -171,6 +174,12 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
                 displayPasswordDialog(ACTION_ADD_MORE_ITEMS_ID);
 
             }
+        }else if(id == R.id.action_save_to_pdf){
+            Intent pdfIntent = new Intent(this, SavePDFActivity.class);
+            pdfIntent.putExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_NAME, customerName);
+            pdfIntent.putExtra(GSTBillingContract.GSTBillingEntry._ID, billId);
+            pdfIntent.putExtra(ITEM_COUNT_KEY, itemCount);
+            startActivity(pdfIntent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -305,11 +314,13 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
+        itemCount = data.getCount();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         adapter.swapCursor(null);
+        itemCount = 0;
     }
 
     public static void changeBillStatus(){

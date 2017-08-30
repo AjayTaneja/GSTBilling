@@ -21,4 +21,9 @@
         android:orderInCategory="4"
         android:title="@string/action_add_more_items_label"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_save_to_pdf"
+        android:orderInCategory="5"
+        android:title="@string/action_save_to_pdf_label"
+        app:showAsAction="never" />
 </menu>
