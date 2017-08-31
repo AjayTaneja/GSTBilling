@@ -2,12 +2,14 @@ package com.taneja.ajay.gstbilling.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.RequiresApi;
@@ -59,6 +61,13 @@ public class PDFUtils {
 
         // close the document
         document.close();
+
+        //open the saved pdf file
+        Uri uri = Uri.fromFile(filePath);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setDataAndType(uri, "application/pdf");
+        context.startActivity(intent);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
