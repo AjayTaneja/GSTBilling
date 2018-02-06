@@ -2,8 +2,10 @@ package com.taneja.ajay.gstbilling;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -38,6 +40,10 @@ public class SavePDFActivity extends AppCompatActivity {
 
     private TextView customerNameTv;
     private TextView invoiceDateTv;
+    private TextView businessNameTv;
+    private TextView businessAddressTv;
+    private TextView authorisedSignatoryTv;
+    private TextView businessContactTv;
     private static TextView totalQtyTv;
     private static TextView totalTaxableValueTv;
     private static TextView totalCgstTv;
@@ -72,6 +78,10 @@ public class SavePDFActivity extends AppCompatActivity {
 
         customerNameTv = (TextView) findViewById(R.id.pdf_customer_name);
         invoiceDateTv = (TextView) findViewById(R.id.pdf_invoice_date);
+        businessNameTv = (TextView) findViewById(R.id.pdf_business_name);
+        businessAddressTv = (TextView) findViewById(R.id.pdf_business_address);
+        authorisedSignatoryTv = (TextView) findViewById(R.id.pdf_authorised_signatory);
+        businessContactTv = (TextView) findViewById(R.id.pdf_business_contact);
         totalQtyTv = (TextView) findViewById(R.id.pdf_total_qty);
         totalTaxableValueTv = (TextView) findViewById(R.id.pdf_total_taxable_value);
         totalCgstTv = (TextView) findViewById(R.id.pdf_total_cgst);
@@ -81,6 +91,13 @@ public class SavePDFActivity extends AppCompatActivity {
         totalAmountAfterTaxTv = (TextView) findViewById(R.id.pdf_total_amount_after_tax);
         totalAmountInWordsTv = (TextView) findViewById(R.id.pdf_total_amount_in_words);
         billPageNumber = (TextView) findViewById(R.id.pdf_bill_page_number);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        businessNameTv.setText(prefs.getString(SetupPasswordActivity.SETUP_BUSINESS_NAME_KEY, getString(R.string.app_name)));
+        businessAddressTv.setText(prefs.getString(SetupPasswordActivity.SETUP_BUSINESS_ADDRESS_KEY, "Address"));
+        String authorisedSignatory = "For " + prefs.getString(SetupPasswordActivity.SETUP_BUSINESS_NAME_KEY, getString(R.string.app_name));
+        authorisedSignatoryTv.setText(authorisedSignatory);
+        businessContactTv.setText(prefs.getString(SetupPasswordActivity.SETUP_BUSINESS_CONTACT_KEY, ""));
 
         customerNameTv.setText(customerName);
         Cursor billDateCursor = getContentResolver().query(

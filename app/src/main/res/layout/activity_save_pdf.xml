@@ -48,7 +48,7 @@
                     android:layout_height="3mm" />
                 <TextView
                     android:fontFamily="serif"
-                    android:text="@string/pdf_header_contact"
+                    android:id="@+id/pdf_business_contact"
                     android:textColor="@color/colorPrimaryText"
                     android:textSize="3mm"
                     android:layout_width="wrap_content"
@@ -57,16 +57,27 @@
         </LinearLayout>
 
         <TextView
-            android:text="@string/app_name"
+            android:id="@+id/pdf_business_name"
             android:fontFamily="serif"
-            android:textSize="5mm"
+            android:textSize="10mm"
             android:textStyle="bold"
             android:gravity="center"
             android:textAllCaps="true"
             android:textColor="@color/colorPrimaryText"
             android:layout_marginBottom="1mm"
             android:layout_width="match_parent"
-            android:layout_height="6mm" />
+            android:layout_height="14mm" />
+
+        <TextView
+            android:id="@+id/pdf_business_address"
+            android:fontFamily="serif"
+            android:textSize="5mm"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="@color/colorPrimaryText"
+            android:layout_marginBottom="4mm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <FrameLayout
             android:background="@drawable/round_view_black"
@@ -477,6 +488,7 @@
                     android:layout_weight="1" />
                 <TextView
                     android:fontFamily="serif"
+                    android:id="@+id/pdf_authorised_signatory"
                     android:text="@string/for_authorised_signatory"
                     android:textSize="4mm"
                     android:textStyle="bold"

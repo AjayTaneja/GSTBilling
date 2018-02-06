@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GST Billing</string>
+    <string name="app_name">E Bill</string>
     <string name="unpaid_bills_title">Unpaid Bills</string>
     <string name="paid_bills_title">Paid Bills</string>
     <string name="setup_password_activity_title">Setup Password</string>
@@ -13,7 +13,7 @@
     <string name="setup_confirm_password">Confirm password :</string>
     <string name="setup_confirm_password_hint">Re-enter password</string>
     <string name="setup_password_error">Error: Passwords do not matched!</string>
-    <string name="setup_password_set">Password set successfully!</string>
+    <string name="setup_password_set">Setup successful!</string>
 
     <string-array name="tax_slab_list_array">
         <item>28%</item>
@@ -81,4 +81,8 @@
     <string name="enoe"><![CDATA[E. & O.E.]]></string>
     <string name="certifying_particulars_true">Certified that the particulars given above are true and correct.</string>
     <string name="for_authorised_signatory">For AJAY TANEJA</string>
+    <string name="setup_business_label">Enter business name :</string>
+    <string name="setup_business_hint">Eg. ABC Retail</string>
+    <string name="setup_business_address_label">Enter business address :</string>
+    <string name="setup_business_contact_label">Enter contact number :</string>
 </resources>
