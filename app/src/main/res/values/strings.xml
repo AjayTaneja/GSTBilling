@@ -85,4 +85,7 @@
     <string name="setup_business_hint">Eg. ABC Retail</string>
     <string name="setup_business_address_label">Enter business address :</string>
     <string name="setup_business_contact_label">Enter contact number :</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -1,12 +1,17 @@
 package com.taneja.ajay.gstbilling;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -42,6 +47,12 @@ public class BillsActivity extends AppCompatActivity implements LoaderManager.Lo
         }else {
             billListStatus = GSTBillingContract.BILL_STATUS_UNPAID;
         }
+
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
+        isStoragePermissionGranted();
+
         switch (billListStatus){
             case GSTBillingContract.BILL_STATUS_PAID:
                 getSupportActionBar().setTitle(R.string.paid_bills_title);
@@ -81,6 +92,19 @@ public class BillsActivity extends AppCompatActivity implements LoaderManager.Lo
             Intent intent = new Intent(this, SetupPasswordActivity.class);
             startActivity(intent);
             finish();
+        }
+    }
+
+    public boolean isStoragePermissionGranted(){
+        if(Build.VERSION.SDK_INT >= 23){
+            if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                return true;
+            }else{
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }else{
+            return true;
         }
     }
 

@@ -1,10 +1,12 @@
 package com.taneja.ajay.gstbilling;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Build;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
@@ -25,15 +27,17 @@ import java.util.List;
 
 public class SavePDFActivity extends AppCompatActivity {
 
-    private static final int MAX_ITEMS_PER_PAGE = 32;
-    private Cursor pdfCursor;
-    private int totalItems;
-    private int itemsShown;
-    private PDFUtils pdfMaker;
-    private boolean moreItemsPresent;
+    private static Activity thisActivity;
 
-    private int totalPages;
-    private int pageNumber;
+    private static final int MAX_ITEMS_PER_PAGE = 32;
+    private static Cursor pdfCursor;
+    private static int totalItems;
+    private static int itemsShown;
+    private static PDFUtils pdfMaker;
+    private static boolean moreItemsPresent;
+
+    private static int totalPages;
+    private static int pageNumber;
 
     private static String customerName;
     private static String billId;
@@ -55,7 +59,7 @@ public class SavePDFActivity extends AppCompatActivity {
     private static TextView billPageNumber;
 
     private RecyclerView pdfRecyclerView;
-    private SavePDFAdapter adapter;
+    private static SavePDFAdapter adapter;
 
     private static ContentResolver contentResolver;
 
@@ -67,6 +71,8 @@ public class SavePDFActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_save_pdf);
+
+        thisActivity = this;
 
         getPDFIntent = getIntent();
         customerName = getPDFIntent.getStringExtra(GSTBillingContract.GSTBillingEntry.PRIMARY_COLUMN_NAME);
@@ -129,7 +135,19 @@ public class SavePDFActivity extends AppCompatActivity {
 
     }
 
-    private Cursor updatePdfCursor() {
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private static void automaticSavePDF() {
+        pdfMaker.addPageToPDF(thisActivity.findViewById(R.id.pdf_view));
+        if(moreItemsPresent){
+            pdfCursor = updatePdfCursor();
+            adapter.swapCursor(pdfCursor);
+        }else {
+            pdfMaker.createPdf(thisActivity, billId + " " + customerName);
+            thisActivity.finish();
+        }
+    }
+
+    private static Cursor updatePdfCursor() {
         Cursor cursor = contentResolver.query(
                 GSTBillingContract.GSTBillingEntry.CONTENT_URI.buildUpon().appendPath(billId).build(),
                 null,
@@ -143,7 +161,7 @@ public class SavePDFActivity extends AppCompatActivity {
         return cursor;
     }
 
-    public boolean areMoreItemsPresent(){
+    public static boolean areMoreItemsPresent(){
         if((totalItems - itemsShown) > 0){
             return true;
         }else {
@@ -151,7 +169,7 @@ public class SavePDFActivity extends AppCompatActivity {
         }
     }
 
-    private void setBillPageNumber(){
+    private static void setBillPageNumber(){
         pageNumber++;
         billPageNumber.setText("Page " + pageNumber + " of " + totalPages);
     }
@@ -168,14 +186,7 @@ public class SavePDFActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id){
             case R.id.action_save_pdf_file:
-                pdfMaker.addPageToPDF(findViewById(R.id.pdf_view));
-                if(moreItemsPresent){
-                    pdfCursor = updatePdfCursor();
-                    adapter.swapCursor(pdfCursor);
-                }else {
-                    pdfMaker.createPdf(this, billId + " " + customerName);
-                    finish();
-                }
+                automaticSavePDF();
         }
 
         return super.onOptionsItemSelected(item);
@@ -190,5 +201,14 @@ public class SavePDFActivity extends AppCompatActivity {
         totalTaxAmountTv.setText(inr + String.format("%.2f", (totalSingleGst+totalSingleGst)));
         totalAmountAfterTaxTv.setText(inr + String.format("%.2f", totalAmount));
         totalAmountInWordsTv.setText("Rupees. " + NumberToWord.getNumberInWords(String.valueOf((int)totalAmount)));
+
+        new Handler().postDelayed(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void run() {
+                automaticSavePDF();
+            }
+        }, 1000);
+
     }
 }
